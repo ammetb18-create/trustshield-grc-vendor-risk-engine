@@ -1,0 +1,69 @@
+from risk_engine import analyze_vendors
+
+def generate_markdown_report(output_path="generated_reports/vendor_risk_report.md"):
+    df = analyze_vendors()
+
+    total_vendors = len(df)
+    critical_count = len(df[df["Risk_Level"] == "Critical"])
+    high_count = len(df[df["Risk_Level"] == "High"])
+    missing_soc2 = df["Evidence_Gaps"].apply(lambda gaps: "Missing SOC 2" in gaps).sum()
+    missing_mfa = df["Evidence_Gaps"].apply(lambda gaps: "Missing MFA" in gaps).sum()
+    known_vulns = df["Evidence_Gaps"].apply(lambda gaps: "Known Vulnerability" in gaps).sum()
+
+    report = []
+    report.append("# TrustShield GRC — Vendor Risk Report\n")
+    report.append("## Executive Summary\n")
+    report.append(f"- Total vendors reviewed: {total_vendors}")
+    report.append(f"- Critical-risk vendors: {critical_count}")
+    report.append(f"- High-risk vendors: {high_count}")
+    report.append(f"- Vendors missing SOC 2 evidence: {missing_soc2}")
+    report.append(f"- Vendors missing MFA: {missing_mfa}")
+    report.append(f"- Vendors with known vulnerability exposure: {known_vulns}\n")
+
+    report.append("## Prioritized Vendor Risk Findings\n")
+
+    for _, row in df.iterrows():
+        report.append(f"### {row['Vendor']} — {row['Risk_Level']} Risk")
+        report.append(f"- System: {row['System']}")
+        report.append(f"- Data Type: {row['Data_Type']}")
+        report.append(f"- Business Criticality: {row['Business_Criticality']}")
+        report.append(f"- Risk Score: {row['Risk_Score']}/100")
+        report.append(f"- Recommended Priority: {row['Recommended_Priority']}")
+
+        report.append("- Evidence Gaps:")
+        if row["Evidence_Gaps"]:
+            for gap in row["Evidence_Gaps"]:
+                report.append(f"  - {gap}")
+        else:
+            report.append("  - No major evidence gaps identified")
+
+        report.append("- Framework Mapping:")
+        if row["Framework_Mapping"]:
+            for mapping in row["Framework_Mapping"]:
+                report.append(f"  - {mapping}")
+        else:
+            report.append("  - No major control gaps mapped")
+
+        report.append("- Recommended Actions:")
+        if row["Recommendations"]:
+            for rec in row["Recommendations"]:
+                report.append(f"  - {rec}")
+        else:
+            report.append("  - Continue routine monitoring")
+
+        report.append("")
+
+    report.append("## Portfolio Note\n")
+    report.append(
+        "This report demonstrates a practical GRC workflow combining vendor risk analysis, "
+        "compliance evidence review, control mapping, and Python-based automation.\n"
+    )
+
+    with open(output_path, "w", encoding="utf-8") as file:
+        file.write("\n".join(report))
+
+    return output_path
+
+if __name__ == "__main__":
+    path = generate_markdown_report()
+    print(f"Report generated: {path}")

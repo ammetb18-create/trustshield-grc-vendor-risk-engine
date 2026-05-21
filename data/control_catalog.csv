@@ -1,0 +1,8 @@
+Gap,Framework,Control,Recommendation
+Missing SOC 2,SOC 2,Security,Request a SOC 2 Type II report or equivalent assurance documentation.
+Missing MFA,NIST CSF 2.0,PR.AA,Implement multi-factor authentication for user and privileged accounts.
+Missing Encryption,NIST CSF 2.0,PR.DS,Validate encryption at rest and in transit for sensitive data.
+Missing Incident Response Plan,NIST SP 800-53,IR Family,Create and test an incident response plan with vendor escalation procedures.
+Known Vulnerability,CISA KEV,Remediation Priority,Prioritize remediation validation or require documented compensating controls.
+Stale Risk Review,NIST CSF 2.0,GV.RM,Perform updated vendor risk review and document risk acceptance or remediation plan.
+Unknown Encryption,NIST CSF 2.0,PR.DS,Request encryption documentation and data protection controls.

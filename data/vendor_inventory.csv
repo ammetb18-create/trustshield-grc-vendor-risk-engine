@@ -1,0 +1,9 @@
+Vendor,System,Data_Type,Business_Criticality,Has_SOC2,Has_MFA,Encryption,Incident_Response_Plan,Last_Risk_Review,Known_Vulnerability
+Stripe,Payment Processing,Financial Data,High,Yes,Yes,Yes,Yes,2026-04-10,No
+Dropbox,Cloud Storage,PII,Medium,Yes,Yes,Yes,No,2025-11-15,No
+Unknown CRM,Customer Management,PII,High,No,No,Unknown,No,2024-08-01,Yes
+OpenAI API,AI Processing,Customer Inputs,Medium,Yes,Yes,Yes,Yes,2026-02-01,No
+Legacy HR Platform,Human Resources,PII,High,No,No,No,No,2024-05-20,Yes
+Slack,Internal Communications,Internal Data,Medium,Yes,Yes,Yes,Yes,2026-01-18,No
+Small Marketing Tool,Email Campaigns,Customer Emails,Low,No,No,Unknown,No,2025-03-12,No
+Cloud Backup Service,Backup Storage,Confidential Data,High,Yes,Yes,Yes,No,2025-07-30,No
