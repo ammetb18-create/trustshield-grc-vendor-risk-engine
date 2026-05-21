@@ -10,7 +10,6 @@ st.set_page_config(
 
 df = analyze_vendors()
 
-# Sidebar branding
 st.sidebar.title("🛡️ TrustShield GRC")
 st.sidebar.markdown("### Vendor Risk & Evidence Engine")
 st.sidebar.markdown(
@@ -39,14 +38,13 @@ risk_filter = st.sidebar.multiselect(
 
 filtered_df = df[df["Risk_Level"].isin(risk_filter)]
 
-# Header
 st.title("🛡️ TrustShield GRC")
 st.subheader("Vendor Risk & Evidence Engine")
 
 st.markdown(
     """
-    A Python and Streamlit-based cybersecurity GRC tool that evaluates vendor cybersecurity risk, 
-    identifies missing compliance evidence, maps control gaps to security frameworks, and generates 
+    A Python and Streamlit-based cybersecurity GRC tool that evaluates vendor cybersecurity risk,
+    identifies missing compliance evidence, maps control gaps to security frameworks, and generates
     executive-style risk reports.
     """
 )
@@ -57,7 +55,6 @@ st.caption(
 
 st.divider()
 
-# Metrics
 total_vendors = len(filtered_df)
 critical_vendors = len(filtered_df[filtered_df["Risk_Level"] == "Critical"])
 high_vendors = len(filtered_df[filtered_df["Risk_Level"] == "High"])
@@ -179,7 +176,7 @@ with tab4:
         TrustShield GRC calculates vendor risk by evaluating business criticality, data sensitivity,
         missing security controls, stale risk reviews, and known vulnerability exposure.
 
-        The tool is designed to simulate a practical GRC workflow where a cybersecurity risk analyst,
+        The tool simulates a practical GRC workflow where a cybersecurity risk analyst,
         compliance analyst, vendor risk analyst, or security control analyst reviews third-party vendors
         and determines which risks require priority remediation.
         """
