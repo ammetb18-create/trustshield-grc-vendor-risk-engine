@@ -441,7 +441,7 @@ with tab0:
             else:
                 st.write("Continue routine monitoring.")
 
-        st.markdown("### Executive Interpretation")
+        st.markdown("### Executive Summary")
         st.write(
             f"{vendor} was assessed as **{risk_level} risk** with a score of **{score}/100**. "
             "This output can support vendor risk review, compliance documentation, remediation planning, and audit readiness."
@@ -449,10 +449,19 @@ with tab0:
 
         custom_report = build_custom_report(row, gaps, mappings, recommendations, score, risk_level, priority)
 
+        st.markdown("### Report Deliverable")
+        st.info(
+            "The downloadable report includes the vendor profile, assessment inputs, risk score breakdown, "
+            "evidence gaps, framework mapping, recommended actions, and ownership/prototype usage notice."
+        )
+
+        with st.expander("Preview Executive Vendor Risk Report", expanded=False):
+            st.markdown(custom_report)
+
         st.download_button(
-            label="Download Custom Vendor Risk Report",
+            label="📥 Download Executive Vendor Risk Report (.md)",
             data=custom_report,
-            file_name=f"{vendor.lower().replace(' ', '_')}_risk_report.md",
+            file_name=f"{vendor.lower().replace(' ', '_')}_executive_vendor_risk_report.md",
             mime="text/markdown",
             use_container_width=True
         )
