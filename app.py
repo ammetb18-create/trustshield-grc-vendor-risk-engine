@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from risk_engine import (
     analyze_vendors,
     identify_gaps,
@@ -17,6 +17,9 @@ st.set_page_config(
 )
 
 df = analyze_vendors()
+
+if "assessment_history" not in st.session_state:
+    st.session_state.assessment_history = []
 
 st.sidebar.title("🛡️ TrustShield GRC")
 st.sidebar.markdown("### Vendor Risk & Evidence Engine")
@@ -258,9 +261,20 @@ def build_custom_report(row, gaps, mappings, recommendations, score, risk_level,
     )
 
     breakdown = calculate_score_breakdown(row, gaps)
-    breakdown_text = "\n".join(
-        [f"- **{item['Risk Factor']}**: +{item['Points']} points — {item['Reason']}" for item in breakdown]
-    )
+    breakdown_lines = []
+    for item in breakdown:
+        factor = item["Risk Factor"]
+        points = item["Points"]
+        reason = item["Reason"]
+
+        if factor == "Final Score":
+            breakdown_lines.append(f"- **Final Score:** {points}/100 — {reason}")
+        elif factor == "Raw Score":
+            breakdown_lines.append(f"- **Raw Score:** {points} points — {reason}")
+        else:
+            breakdown_lines.append(f"- **{factor}**: +{points} points — {reason}")
+
+    breakdown_text = "\n".join(breakdown_lines)
 
     return f"""# TrustShield GRC Vendor Risk Assessment Report
 
@@ -385,13 +399,14 @@ col5.metric("Missing MFA", missing_mfa)
 
 st.divider()
 
-tab0, tab1, tab2, tab3, tab4 = st.tabs(
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
         "🚀 Interactive Assessment",
         "📊 Dashboard",
         "🔎 Vendor Detail",
         "🧾 Report Generator",
-        "🧠 Methodology"
+        "🧠 Methodology",
+        "📁 Assessment History"
     ]
 )
 
@@ -479,6 +494,9 @@ with tab0:
         submitted = st.form_submit_button("Analyze Vendor Risk", use_container_width=True)
 
     if submitted:
+        vendor = vendor.strip() or "Unnamed Vendor"
+        system = system.strip() or "Unspecified System"
+
         row = pd.Series({
             "Vendor": vendor,
             "System": system,
@@ -498,7 +516,23 @@ with tab0:
         priority = prioritize_action(risk_level)
         mappings, recommendations = map_frameworks_and_recommendations(gaps)
 
-        st.success("Assessment completed.")
+        history_record = {
+            "Assessment Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Vendor": vendor,
+            "System / Service": system,
+            "Data Type": data_type,
+            "Business Criticality": business_criticality,
+            "Risk Score": score,
+            "Risk Level": risk_level,
+            "Recommended Priority": priority,
+            "Evidence Gaps": ", ".join(gaps) if gaps else "No major evidence gaps identified",
+            "Framework Mapping": ", ".join(mappings) if mappings else "No framework mappings identified",
+            "Recommended Actions": " | ".join(recommendations) if recommendations else "Continue routine monitoring",
+        }
+
+        st.session_state.assessment_history.append(history_record)
+
+        st.success("Assessment completed and saved to session history.")
 
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Vendor", vendor)
@@ -665,6 +699,64 @@ with tab3:
                 file_name="vendor_risk_report.md",
                 mime="text/markdown"
             )
+
+
+
+with tab5:
+    st.header("Assessment History")
+
+    st.write(
+        "This section tracks vendor assessments completed during the current session. "
+        "It allows a GRC analyst to review multiple assessments, compare risk levels, and export results for documentation."
+    )
+
+    st.warning(
+        "Session-based storage: this history is temporary and will reset when the app session restarts. "
+        "A future production version should store assessments in a secure database."
+    )
+
+    if st.session_state.assessment_history:
+        history_df = pd.DataFrame(st.session_state.assessment_history)
+
+        st.markdown("### Completed Assessments")
+        st.dataframe(
+            history_df,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        csv_data = history_df.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            label="📤 Export Assessment History (.csv)",
+            data=csv_data,
+            file_name="trustshield_assessment_history.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+
+        col_clear, col_note = st.columns([1, 2])
+
+        with col_clear:
+            if st.button("Clear Session History", use_container_width=True):
+                st.session_state.assessment_history = []
+                st.rerun()
+
+        with col_note:
+            st.info(
+                "Next product step: replace temporary session storage with a database so users can save, retrieve, and manage assessments over time."
+            )
+
+        st.markdown("### Risk Distribution")
+        risk_counts = history_df["Risk Level"].value_counts().reset_index()
+        risk_counts.columns = ["Risk Level", "Count"]
+        st.dataframe(risk_counts, use_container_width=True, hide_index=True)
+
+    else:
+        st.info(
+            "No assessments have been saved yet. Run a vendor assessment in the Interactive Assessment tab to populate this history."
+        )
+
 
 with tab4:
     st.header("Methodology")
