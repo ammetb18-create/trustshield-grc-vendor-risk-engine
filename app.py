@@ -149,10 +149,113 @@ def calculate_score_breakdown(row, gaps):
     return breakdown
 
 
+
+def generate_remediation_plan(gaps, risk_level):
+    """Create a consulting-style remediation plan based on evidence gaps and risk level."""
+    remediation_catalog = {
+        "Missing SOC 2": {
+            "Action Item": "Request and review the vendor's latest SOC 2 Type II report",
+            "Control Objective": "Validate third-party security, availability, confidentiality, and processing integrity controls",
+            "Required Evidence": "SOC 2 Type II report, bridge letter if applicable, management response to exceptions",
+            "Suggested Owner": "Vendor Risk / GRC Analyst",
+            "Timeline": "15 business days",
+            "Priority": "High",
+        },
+        "Missing MFA": {
+            "Action Item": "Require MFA enforcement for privileged and user access",
+            "Control Objective": "Reduce account takeover risk and strengthen identity and access controls",
+            "Required Evidence": "MFA policy, identity provider configuration evidence, access control screenshots, user access review evidence",
+            "Suggested Owner": "IT Security / IAM Owner",
+            "Timeline": "10 business days",
+            "Priority": "High",
+        },
+        "Missing Encryption": {
+            "Action Item": "Confirm encryption at rest and in transit for sensitive data",
+            "Control Objective": "Protect sensitive information from unauthorized disclosure or interception",
+            "Required Evidence": "Encryption policy, architecture diagram, TLS configuration, database/storage encryption evidence",
+            "Suggested Owner": "Security Engineering / Vendor Technical Contact",
+            "Timeline": "15 business days",
+            "Priority": "High",
+        },
+        "Unknown Encryption": {
+            "Action Item": "Obtain clarification and evidence of encryption controls",
+            "Control Objective": "Remove uncertainty around data protection posture",
+            "Required Evidence": "Encryption attestation, technical documentation, architecture diagram, policy excerpt",
+            "Suggested Owner": "Vendor Risk / Security Review Team",
+            "Timeline": "10 business days",
+            "Priority": "Medium",
+        },
+        "Missing Incident Response Plan": {
+            "Action Item": "Request the vendor's incident response policy and escalation procedures",
+            "Control Objective": "Validate readiness to detect, respond to, and communicate security incidents",
+            "Required Evidence": "Incident response plan, breach notification procedure, escalation matrix, tabletop exercise summary",
+            "Suggested Owner": "Incident Response / GRC Analyst",
+            "Timeline": "15 business days",
+            "Priority": "High",
+        },
+        "Known Vulnerability": {
+            "Action Item": "Require documented remediation or risk acceptance for known vulnerability exposure",
+            "Control Objective": "Ensure timely remediation of exploitable weaknesses",
+            "Required Evidence": "Vulnerability scan summary, remediation plan, patch evidence, risk acceptance if unresolved",
+            "Suggested Owner": "Security Operations / Vendor Technical Owner",
+            "Timeline": "5 business days",
+            "Priority": "Critical",
+        },
+        "Stale Risk Review": {
+            "Action Item": "Schedule a refreshed vendor risk review",
+            "Control Objective": "Maintain current vendor risk documentation and audit readiness",
+            "Required Evidence": "Updated questionnaire, refreshed control evidence, review notes, approval record",
+            "Suggested Owner": "Vendor Risk / Compliance Owner",
+            "Timeline": "30 business days",
+            "Priority": "Medium",
+        },
+    }
+
+    plan = []
+
+    if risk_level == "Critical":
+        plan.append({
+            "Action Item": "Escalate vendor for executive-level risk review",
+            "Control Objective": "Ensure high-risk vendor exposure is visible to decision-makers",
+            "Required Evidence": "Executive summary, risk score, evidence gaps, remediation ownership, target dates",
+            "Suggested Owner": "GRC Lead / Security Leadership",
+            "Timeline": "Immediate",
+            "Priority": "Critical",
+        })
+
+    for gap in gaps:
+        if gap in remediation_catalog:
+            plan.append(remediation_catalog[gap])
+
+    if not plan:
+        plan.append({
+            "Action Item": "Continue routine vendor monitoring",
+            "Control Objective": "Maintain ongoing audit readiness and vendor oversight",
+            "Required Evidence": "Periodic review record, updated vendor profile, monitoring notes",
+            "Suggested Owner": "Vendor Risk / Compliance Owner",
+            "Timeline": "Quarterly",
+            "Priority": "Low",
+        })
+
+    return plan
+
+
 def build_custom_report(row, gaps, mappings, recommendations, score, risk_level, priority):
     gaps_text = "\n".join([f"- {gap}" for gap in gaps]) if gaps else "- No major evidence gaps identified."
     mappings_text = "\n".join([f"- {item}" for item in mappings]) if mappings else "- No framework mappings identified."
     recommendations_text = "\n".join([f"- {item}" for item in recommendations]) if recommendations else "- Continue routine monitoring."
+
+    remediation_plan = generate_remediation_plan(gaps, risk_level)
+    remediation_text = "\n".join(
+        [
+            f"- **{item['Priority']} Priority — {item['Action Item']}**\n"
+            f"  - Control Objective: {item['Control Objective']}\n"
+            f"  - Required Evidence: {item['Required Evidence']}\n"
+            f"  - Suggested Owner: {item['Suggested Owner']}\n"
+            f"  - Timeline: {item['Timeline']}"
+            for item in remediation_plan
+        ]
+    )
 
     breakdown = calculate_score_breakdown(row, gaps)
     breakdown_text = "\n".join(
@@ -216,9 +319,16 @@ This assessment supports vendor risk management, cybersecurity governance, compl
 
 ---
 
+## Remediation Action Plan
+
+{remediation_text}
+
+---
+
 ## Portfolio Note
 
 This report was generated by TrustShield GRC, a cybersecurity GRC portfolio prototype created to demonstrate risk analysis, compliance documentation, control mapping, audit-readiness thinking, and Python/Streamlit automation.
+
 ---
 
 ## Ownership & Usage Notice
