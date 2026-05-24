@@ -1,58 +1,140 @@
-# TrustShield GRC — Vendor Risk & Evidence Engine
+# TrustShield GRC — Interactive Vendor Risk & Evidence Assessment Engine
 
-## Overview
+**TrustShield GRC** is an interactive cybersecurity Governance, Risk, and Compliance (GRC) portfolio project designed to assess third-party vendor cybersecurity risk, identify missing compliance evidence, map findings to security frameworks, and generate executive-style remediation reports.
 
-TrustShield GRC is a Python and Streamlit-based cybersecurity governance, risk, and compliance tool designed to evaluate vendor cybersecurity risk, identify missing compliance evidence, map control gaps to security frameworks, and generate executive-style risk reports.
+Built by **América Trujillo** as part of a cybersecurity GRC, vendor risk, compliance documentation, and AI governance portfolio.
 
-This project simulates a real-world GRC workflow used by cybersecurity, compliance, vendor risk, and audit readiness teams.
+---
+
+## Live Demo
+
+Streamlit demo: https://america-trustshield-grc-demo.streamlit.app/
+
+> Note: The app is hosted on Streamlit Community Cloud and may take a few seconds to wake up if inactive.
+
+---
 
 ## Problem
 
-Organizations often rely on third-party vendors, SaaS platforms, cloud tools, payment processors, and AI-enabled systems to manage sensitive business operations. However, many teams lack a structured way to quickly identify:
+Organizations depend on third-party vendors, SaaS platforms, cloud tools, payment processors, and AI-enabled systems to manage sensitive business operations. However, vendor risk reviews are often inconsistent, manual, or poorly documented.
 
-- Which vendors create the highest cybersecurity risk
-- Which controls are missing or weak
-- Which compliance evidence is unavailable
-- Which vendors require immediate review
-- How findings map to recognized security frameworks
+Common challenges include:
 
-Without a clear risk and evidence review process, organizations may face audit delays, data exposure, vendor risk, and compliance gaps.
+- Identifying which vendors create the highest cybersecurity risk
+- Determining which compliance evidence is missing
+- Mapping vendor gaps to recognized security frameworks
+- Prioritizing remediation actions
+- Producing audit-ready documentation for management review
+
+Without a structured workflow, organizations may face audit delays, data exposure, weak vendor oversight, and compliance gaps.
+
+---
 
 ## Solution
 
-TrustShield GRC evaluates vendor and system risk using structured input data and produces a prioritized risk analysis. The tool calculates risk scores, identifies missing security evidence, maps findings to cybersecurity frameworks, and generates a report that can support audit readiness and remediation planning.
+TrustShield GRC provides an interactive workflow where a user can enter fictional vendor security information, calculate vendor risk, identify evidence gaps, map findings to cybersecurity frameworks, and download a structured executive risk report.
+
+The tool demonstrates how cybersecurity GRC analysts can turn vendor security inputs into practical risk documentation and remediation planning.
+
+---
 
 ## Key Features
 
-- Vendor and system risk scoring
-- Missing evidence detection
-- Control gap analysis
-- Risk classification: Low, Medium, High, Critical
-- Framework mapping for GRC documentation
-- Executive-style risk report generation
-- Streamlit dashboard for visual review
-- CSV-based input for easy testing and customization
+- Interactive vendor risk assessment form
+- Vendor cybersecurity risk scoring
+- Explainable risk score breakdown
+- Evidence gap detection
+- Framework mapping
+- Recommended actions
+- Consulting-style remediation action plan
+- Downloadable executive vendor risk report
+- Ownership and prototype usage notice
+- Sample vendor dashboard for portfolio demonstration
 
-## Use Case
+---
 
-This tool can be used to simulate how a GRC analyst, cybersecurity risk analyst, compliance analyst, or vendor risk analyst may review third-party vendors and internal systems.
+## Cybersecurity / GRC Concepts Demonstrated
 
-Example scenarios include:
+- Vendor Risk Management
+- Third-Party Risk Management
+- Cybersecurity Governance, Risk, and Compliance
+- SOC 2 evidence review
+- MFA / IAM control review
+- Encryption evidence review
+- Incident response readiness
+- Vulnerability exposure prioritization
+- Audit readiness documentation
+- Risk scoring and risk classification
+- Remediation planning
+- Framework mapping
 
-- Reviewing vendors before onboarding
-- Preparing evidence for an audit
-- Identifying missing SOC 2, MFA, encryption, or incident response documentation
-- Prioritizing high-risk vendors
-- Supporting cybersecurity governance workflows
+---
+
+## How the App Works
+
+1. The user enters vendor/security information.
+2. TrustShield calculates a cybersecurity risk score.
+3. The tool identifies missing evidence and control gaps.
+4. Findings are mapped to relevant cybersecurity frameworks.
+5. The app generates recommended actions and a remediation plan.
+6. The user can download an executive vendor risk report.
+
+---
+
+## Sample Output
+
+The downloadable report includes:
+
+- Executive Summary
+- Risk Score Breakdown
+- Vendor Profile
+- Assessment Inputs
+- Evidence Gaps
+- Framework Mapping
+- Recommended Actions
+- Remediation Action Plan
+- Portfolio Note
+- Ownership & Usage Notice
+
+---
 
 ## Tech Stack
 
 - Python
-- Pandas
 - Streamlit
-- CSV data processing
+- Pandas
 - Markdown report generation
+- CSV-based sample data
+- GitHub / Streamlit Community Cloud deployment
 
-## Status
+---
 
-In development.
+## Portfolio Relevance
+
+This project demonstrates the ability to combine legal, regulatory, cybersecurity, and technical concepts into a practical GRC workflow.
+
+It is designed to support career positioning for roles such as:
+
+- Cybersecurity GRC Analyst
+- Security Compliance Analyst
+- IT Risk Analyst
+- Vendor Risk Analyst
+- Audit Readiness Analyst
+- Information Security Compliance Analyst
+- AI Governance / Risk Analyst
+
+---
+
+## Prototype Notice
+
+This project is a portfolio prototype for educational and professional demonstration purposes only.
+
+Do not enter confidential, client, or production data. Outputs generated by this prototype are not legal, cybersecurity, audit, or compliance advice.
+
+---
+
+## Ownership & Usage Notice
+
+© 2026 América Trujillo. TrustShield GRC is the intellectual property of América Trujillo.
+
+This prototype may not be sold, resold, redistributed, or used commercially without express written permission.
