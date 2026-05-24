@@ -74,10 +74,90 @@ def risk_badge(level):
         return "🟡 Medium"
     return f"🟢 {level}"
 
+
+def calculate_score_breakdown(row, gaps):
+    """Return an explainable scoring breakdown aligned with the risk_engine logic."""
+    criticality_points = {
+        "High": 30,
+        "Medium": 20,
+        "Low": 10,
+    }
+
+    data_sensitivity_points = {
+        "Financial Data": 25,
+        "PII": 25,
+        "PHI": 25,
+        "Confidential Data": 25,
+        "Customer Inputs": 20,
+        "Customer Emails": 15,
+        "Internal Data": 10,
+        "Public Data": 5,
+    }
+
+    breakdown = []
+
+    business_criticality = str(row["Business_Criticality"]).strip()
+    data_type = str(row["Data_Type"]).strip()
+
+    breakdown.append({
+        "Risk Factor": f"Business Criticality: {business_criticality}",
+        "Points": criticality_points.get(business_criticality, 10),
+        "Reason": "Business-critical vendors create greater operational and compliance exposure."
+    })
+
+    breakdown.append({
+        "Risk Factor": f"Data Sensitivity: {data_type}",
+        "Points": data_sensitivity_points.get(data_type, 10),
+        "Reason": "Sensitive data increases privacy, security, and regulatory risk."
+    })
+
+    for gap in gaps:
+        if gap == "Known Vulnerability":
+            points = 25
+            reason = "Known vulnerabilities increase the likelihood of exploitation and require urgent review."
+        elif gap in ["Missing SOC 2", "Missing MFA", "Missing Encryption", "Missing Incident Response Plan"]:
+            points = 15
+            reason = "Missing security evidence or control documentation creates audit and compliance gaps."
+        elif gap in ["Unknown Encryption", "Stale Risk Review"]:
+            points = 10
+            reason = "Unknown or outdated evidence reduces confidence in the vendor's security posture."
+        else:
+            points = 5
+            reason = "Additional risk signal identified."
+
+        breakdown.append({
+            "Risk Factor": gap,
+            "Points": points,
+            "Reason": reason
+        })
+
+    raw_score = sum(item["Points"] for item in breakdown)
+    final_score = min(raw_score, 100)
+
+    breakdown.append({
+        "Risk Factor": "Raw Score",
+        "Points": raw_score,
+        "Reason": "Total before applying the maximum score cap."
+    })
+
+    breakdown.append({
+        "Risk Factor": "Final Score",
+        "Points": final_score,
+        "Reason": "Final score is capped at 100 for consistent risk reporting."
+    })
+
+    return breakdown
+
+
 def build_custom_report(row, gaps, mappings, recommendations, score, risk_level, priority):
     gaps_text = "\n".join([f"- {gap}" for gap in gaps]) if gaps else "- No major evidence gaps identified."
     mappings_text = "\n".join([f"- {item}" for item in mappings]) if mappings else "- No framework mappings identified."
     recommendations_text = "\n".join([f"- {item}" for item in recommendations]) if recommendations else "- Continue routine monitoring."
+
+    breakdown = calculate_score_breakdown(row, gaps)
+    breakdown_text = "\n".join(
+        [f"- **{item['Risk Factor']}**: +{item['Points']} points — {item['Reason']}" for item in breakdown]
+    )
 
     return f"""# TrustShield GRC Vendor Risk Assessment Report
 
@@ -89,6 +169,12 @@ TrustShield GRC reviewed **{row['Vendor']}**, a vendor supporting **{row['System
 **Recommended Priority:** {priority}
 
 This assessment supports vendor risk management, cybersecurity governance, compliance documentation, and audit readiness.
+
+---
+
+## Risk Score Breakdown
+
+{breakdown_text}
 
 ---
 
@@ -309,6 +395,23 @@ with tab0:
         m2.metric("Risk Score", f"{score}/100")
         m3.metric("Risk Level", risk_badge(risk_level))
         m4.metric("Priority", priority)
+
+        breakdown = calculate_score_breakdown(row, gaps)
+        breakdown_df = pd.DataFrame(breakdown)
+
+        with st.expander("Risk Score Breakdown — Why this score was assigned", expanded=True):
+            st.write(
+                "This section makes the risk score explainable by showing how business criticality, "
+                "data sensitivity, and security evidence gaps contributed to the final risk score."
+            )
+            st.dataframe(
+                breakdown_df,
+                use_container_width=True,
+                hide_index=True
+            )
+            raw_score = breakdown_df.loc[breakdown_df["Risk Factor"] == "Raw Score", "Points"].iloc[0]
+            final_score = breakdown_df.loc[breakdown_df["Risk Factor"] == "Final Score", "Points"].iloc[0]
+            st.caption(f"Raw score: {raw_score}. Final score: {final_score}/100. Scores are capped at 100 for consistent reporting.")
 
         st.markdown("### Assessment Findings")
 
