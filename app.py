@@ -895,6 +895,7 @@ def evidence_tracker_to_markdown_table(tracker_df):
         "Priority",
         "Timeline",
         "Status",
+        "Reviewer Notes",
     ]
 
     available_columns = [col for col in preferred_columns if col in tracker_df.columns]
@@ -1627,39 +1628,87 @@ with tab7:
         tracker_df = generate_evidence_request_tracker(st.session_state.assessment_history)
 
         st.markdown("### Evidence Requests Generated from Assessment History")
-        st.dataframe(
-            tracker_df,
-            use_container_width=True,
-            hide_index=True
+        st.markdown("#### Evidence Status Workflow")
+
+        st.write(
+            "Update the status and reviewer notes for each evidence request. "
+            "All other fields remain locked to preserve the integrity of the assessment output."
         )
 
-        total_requests = len(tracker_df)
-        critical_requests = len(tracker_df[tracker_df["Priority"] == "Critical"])
-        high_requests = len(tracker_df[tracker_df["Priority"] == "High"])
-        open_requests = len(tracker_df[tracker_df["Status"] == "Open"])
+        status_options = [
+            "Open",
+            "Requested",
+            "Received",
+            "Under Review",
+            "Accepted",
+            "Rejected",
+            "Risk Accepted",
+        ]
 
-        e1, e2, e3, e4 = st.columns(4)
+        if "Reviewer Notes" not in tracker_df.columns:
+            tracker_df["Reviewer Notes"] = ""
+
+        tracker_df["Status"] = tracker_df["Status"].apply(
+            lambda status: status if status in status_options else "Open"
+        )
+
+        editable_columns = ["Status", "Reviewer Notes"]
+        disabled_columns = [column for column in tracker_df.columns if column not in editable_columns]
+
+        edited_tracker_df = st.data_editor(
+            tracker_df,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="fixed",
+            disabled=disabled_columns,
+            column_config={
+                "Status": st.column_config.SelectboxColumn(
+                    "Status",
+                    options=status_options,
+                    required=True,
+                    help="Track the current review status of the evidence request."
+                ),
+                "Reviewer Notes": st.column_config.TextColumn(
+                    "Reviewer Notes",
+                    help="Add reviewer notes, follow-up details, or risk acceptance comments."
+                ),
+            },
+            key="evidence_status_editor"
+        )
+
+        total_requests = len(edited_tracker_df)
+        critical_requests = len(edited_tracker_df[edited_tracker_df["Priority"] == "Critical"])
+        active_requests = len(
+            edited_tracker_df[
+                edited_tracker_df["Status"].isin(["Open", "Requested", "Received", "Under Review"])
+            ]
+        )
+        completed_requests = len(edited_tracker_df[edited_tracker_df["Status"] == "Accepted"])
+        risk_accepted_requests = len(edited_tracker_df[edited_tracker_df["Status"] == "Risk Accepted"])
+
+        e1, e2, e3, e4, e5 = st.columns(5)
         e1.metric("Evidence Requests", total_requests)
         e2.metric("Critical Requests", critical_requests)
-        e3.metric("High Requests", high_requests)
-        e4.metric("Open Items", open_requests)
+        e3.metric("Active Items", active_requests)
+        e4.metric("Accepted", completed_requests)
+        e5.metric("Risk Accepted", risk_accepted_requests)
 
-        tracker_csv = tracker_df.to_csv(index=False).encode("utf-8")
+        tracker_csv = edited_tracker_df.to_csv(index=False).encode("utf-8")
 
         st.download_button(
-            label="📤 Export Evidence Request Tracker (.csv)",
+            label="📤 Export Updated Evidence Tracker (.csv)",
             data=tracker_csv,
-            file_name="trustshield_evidence_request_tracker.csv",
+            file_name="trustshield_updated_evidence_request_tracker.csv",
             mime="text/csv",
             use_container_width=True
         )
 
-        evidence_report = generate_evidence_tracker_report(tracker_df)
+        evidence_report = generate_evidence_tracker_report(edited_tracker_df)
 
         st.markdown("### Evidence Request Executive Report")
         st.write(
             "Generate a readable executive report summarizing evidence requests, priority levels, "
-            "vendor follow-up needs, and consulting recommendations."
+            "vendor follow-up needs, status updates, reviewer notes, and consulting recommendations."
         )
 
         with st.expander("Preview Evidence Request Executive Report", expanded=False):
@@ -1674,9 +1723,11 @@ with tab7:
         )
 
         st.info(
-            "Consulting use case: this tracker can be shared as a follow-up list for vendors, security teams, "
-            "compliance owners, and audit preparation workflows."
+            "Consulting use case: this workflow can be used to track vendor evidence requests, "
+            "document review status, record reviewer notes, and support audit preparation workflows."
         )
+
+        # Evidence Status Workflow
 
     else:
         st.info(
