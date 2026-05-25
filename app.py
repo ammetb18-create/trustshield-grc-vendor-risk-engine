@@ -412,6 +412,84 @@ def get_required_batch_columns():
     ]
 
 
+
+def detect_uploaded_csv_type(uploaded_df):
+    """Detect whether the uploaded CSV looks like an input template or an output file."""
+    columns = set(uploaded_df.columns)
+
+    required_inventory_columns = set(get_required_batch_columns())
+
+    batch_results_columns = {
+        "Assessment Timestamp",
+        "Vendor",
+        "System / Service",
+        "Risk Score",
+        "Risk Level",
+        "Recommended Priority",
+        "Evidence Gaps",
+    }
+
+    evidence_tracker_columns = {
+        "Vendor",
+        "System / Service",
+        "Risk Score",
+        "Risk Level",
+        "Evidence Gap",
+        "Evidence Request",
+        "Required Evidence",
+        "Status",
+    }
+
+    assessment_history_columns = {
+        "Assessment Timestamp",
+        "Vendor",
+        "System / Service",
+        "Data Type",
+        "Business Criticality",
+        "Risk Score",
+        "Risk Level",
+    }
+
+    validation_error_columns = {
+        "Row",
+        "Column",
+        "Issue",
+        "Expected Format",
+    }
+
+    if required_inventory_columns.issubset(columns):
+        return "vendor_inventory", "This appears to be a valid vendor inventory input file."
+
+    if evidence_tracker_columns.issubset(columns):
+        return (
+            "evidence_tracker_output",
+            "This looks like an Evidence Request Tracker export. That file is an output, not a vendor inventory input."
+        )
+
+    if batch_results_columns.issubset(columns):
+        return (
+            "batch_results_output",
+            "This looks like a Batch Risk Results export. That file is an output, not a vendor inventory input."
+        )
+
+    if assessment_history_columns.issubset(columns):
+        return (
+            "assessment_history_output",
+            "This looks like an Assessment History export. That file is an output, not a vendor inventory input."
+        )
+
+    if validation_error_columns.issubset(columns):
+        return (
+            "validation_errors_output",
+            "This looks like a CSV Validation Errors export. That file is an error report, not a vendor inventory input."
+        )
+
+    return (
+        "unknown_or_incomplete",
+        "This CSV does not match the required vendor inventory template."
+    )
+
+
 def validate_and_standardize_batch_dataframe(uploaded_df):
     """
     Validate uploaded vendor inventory data and standardize accepted values.
@@ -1804,6 +1882,44 @@ with tab6:
                 use_container_width=True,
                 hide_index=True
             )
+
+            detected_type, detected_message = detect_uploaded_csv_type(uploaded_df)
+
+            if detected_type != "vendor_inventory":
+                st.error("Uploaded file is not a valid vendor inventory input file.")
+                st.write(detected_message)
+
+                st.markdown("### Required Vendor Inventory Columns")
+                required_columns_df = pd.DataFrame({
+                    "Required Column": get_required_batch_columns(),
+                    "Purpose": [
+                        "Vendor or third-party name",
+                        "System, platform, or service provided by the vendor",
+                        "Type of data handled by the vendor",
+                        "Business importance of the vendor/service",
+                        "Whether SOC 2 evidence is available",
+                        "Whether MFA is implemented",
+                        "Encryption status for sensitive data",
+                        "Whether an incident response plan is available",
+                        "Whether there is known vulnerability exposure",
+                        "Last vendor risk review date in YYYY-MM-DD format",
+                    ]
+                })
+
+                st.dataframe(
+                    required_columns_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+                st.info(
+                    "Download the Vendor CSV Template above, complete it, and upload that file here. "
+                    "Do not upload exported reports, assessment history, batch results, evidence tracker files, or validation error files into this intake."
+                )
+
+                st.stop()
+
+            st.success("CSV file type check passed. Vendor inventory detected.")
 
             standardized_df, validation_errors = validate_and_standardize_batch_dataframe(uploaded_df)
 
