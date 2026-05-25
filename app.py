@@ -23,6 +23,7 @@ from csv_tools import (
     detect_uploaded_csv_type,
     validate_and_standardize_batch_dataframe,
 )
+from workspace_tools import build_project_workspace_payload, validate_project_workspace_payload
 from evidence_workflow import (
     generate_evidence_request_tracker,
     generate_evidence_tracker_report,
@@ -214,41 +215,8 @@ def analyze_batch_dataframe(uploaded_df):
 
 
 
-def build_project_workspace_payload():
-    """Build a portable project workspace payload for export/import."""
-    return {
-        "workspace_type": "TrustShield GRC Project Workspace",
-        "workspace_version": "v2.8",
-        "exported_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "created_by": "América Trujillo",
-        "project": "TrustShield GRC",
-        "assessment_history": st.session_state.get("assessment_history", []),
-        "evidence_tracker_state": st.session_state.get("evidence_tracker_state", []),
-        "notice": (
-            "This workspace is intended for prototype, portfolio, testing, and sanitized consulting workflow use only. "
-            "Do not store confidential, client, regulated, or production data."
-        ),
-    }
 
 
-def load_project_workspace_payload(payload):
-    """Validate and load a TrustShield project workspace payload into session state."""
-    if not isinstance(payload, dict):
-        return False, "Workspace file must contain a JSON object."
-
-    assessment_history = payload.get("assessment_history", [])
-    evidence_tracker_state = payload.get("evidence_tracker_state", [])
-
-    if not isinstance(assessment_history, list):
-        return False, "Invalid workspace: assessment_history must be a list."
-
-    if not isinstance(evidence_tracker_state, list):
-        return False, "Invalid workspace: evidence_tracker_state must be a list."
-
-    st.session_state.assessment_history = assessment_history
-    st.session_state.evidence_tracker_state = evidence_tracker_state
-
-    return True, "Workspace loaded successfully."
 
 
 SAMPLE_ASSESSMENT = {
@@ -1136,7 +1104,10 @@ with tab8:
     w1.metric("Saved Assessments in Session", current_history_count)
     w2.metric("Saved Evidence Tracker Rows", current_tracker_count)
 
-    workspace_payload = build_project_workspace_payload()
+    workspace_payload = build_project_workspace_payload(
+        st.session_state.get("assessment_history", []),
+        st.session_state.get("evidence_tracker_state", [])
+    )
     workspace_json = json.dumps(workspace_payload, indent=2, ensure_ascii=False, default=str).encode("utf-8")
 
     st.markdown("### Export Workspace")
@@ -1169,9 +1140,11 @@ with tab8:
             st.write(f"**Evidence Tracker Rows:** {len(payload.get('evidence_tracker_state', []))}")
 
             if st.button("Load Project Workspace", use_container_width=True):
-                success, message = load_project_workspace_payload(payload)
+                success, message, assessment_history, evidence_tracker_state = validate_project_workspace_payload(payload)
 
                 if success:
+                    st.session_state.assessment_history = assessment_history
+                    st.session_state.evidence_tracker_state = evidence_tracker_state
                     st.success(message)
                     st.rerun()
                 else:

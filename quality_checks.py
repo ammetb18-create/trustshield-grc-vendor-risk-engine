@@ -19,6 +19,7 @@ DEMO_DATA_FILE = Path("demo_data.py")
 CSV_TOOLS_FILE = Path("csv_tools.py")
 EVIDENCE_WORKFLOW_FILE = Path("evidence_workflow.py")
 REPORT_BUILDERS_FILE = Path("report_builders.py")
+WORKSPACE_TOOLS_FILE = Path("workspace_tools.py")
 
 
 def assert_true(condition, message):
@@ -266,6 +267,7 @@ def test_app_feature_surface_present():
     csv_tools_text = CSV_TOOLS_FILE.read_text(encoding="utf-8") if CSV_TOOLS_FILE.exists() else ""
     evidence_workflow_text = EVIDENCE_WORKFLOW_FILE.read_text(encoding="utf-8") if EVIDENCE_WORKFLOW_FILE.exists() else ""
     report_builders_text = REPORT_BUILDERS_FILE.read_text(encoding="utf-8") if REPORT_BUILDERS_FILE.exists() else ""
+    workspace_tools_text = WORKSPACE_TOOLS_FILE.read_text(encoding="utf-8") if WORKSPACE_TOOLS_FILE.exists() else ""
 
     required_features = [
         "from demo_data import",
@@ -279,14 +281,14 @@ def test_app_feature_surface_present():
         "generate_risk_acceptance_memo",
         "generate_critical_vendor_report_pack",
         "build_project_workspace_payload",
-        "load_project_workspace_payload",
+        "validate_project_workspace_payload",
         "Project Workspace",
         "Evidence Status Workflow",
         "Risk Acceptance Memo",
         "Critical Vendor Report Pack",
     ]
 
-    combined_text = app_text + "\n" + demo_data_text + "\n" + csv_tools_text + "\n" + evidence_workflow_text + "\n" + report_builders_text
+    combined_text = app_text + "\n" + demo_data_text + "\n" + csv_tools_text + "\n" + evidence_workflow_text + "\n" + report_builders_text + "\n" + workspace_tools_text
     missing = [feature for feature in required_features if feature not in combined_text]
     assert_true(not missing, f"Missing expected app features: {missing}")
 
@@ -294,6 +296,7 @@ def test_app_feature_surface_present():
 def test_app_does_not_require_tabulate_for_markdown_tables():
     app_text = APP_FILE.read_text(encoding="utf-8")
     report_builders_text = REPORT_BUILDERS_FILE.read_text(encoding="utf-8") if REPORT_BUILDERS_FILE.exists() else ""
+    workspace_tools_text = WORKSPACE_TOOLS_FILE.read_text(encoding="utf-8") if WORKSPACE_TOOLS_FILE.exists() else ""
     combined_text = app_text + "\n" + report_builders_text
 
     assert_true(
@@ -313,6 +316,7 @@ def test_workspace_json_structure_expected_keys():
     csv_tools_text = CSV_TOOLS_FILE.read_text(encoding="utf-8") if CSV_TOOLS_FILE.exists() else ""
     evidence_workflow_text = EVIDENCE_WORKFLOW_FILE.read_text(encoding="utf-8") if EVIDENCE_WORKFLOW_FILE.exists() else ""
     report_builders_text = REPORT_BUILDERS_FILE.read_text(encoding="utf-8") if REPORT_BUILDERS_FILE.exists() else ""
+    workspace_tools_text = WORKSPACE_TOOLS_FILE.read_text(encoding="utf-8") if WORKSPACE_TOOLS_FILE.exists() else ""
 
     expected_keys = [
         "workspace_type",
