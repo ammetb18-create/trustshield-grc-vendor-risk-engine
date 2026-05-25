@@ -282,6 +282,25 @@ def build_custom_report(row, gaps, mappings, recommendations, score, risk_level,
 
     return f"""# TrustShield GRC Vendor Risk Assessment Report
 
+## Report Metadata
+
+- **Prepared By:** América Trujillo
+- **Tool:** TrustShield GRC
+- **Report Type:** Individual Vendor Cybersecurity Risk Assessment
+- **Report Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Assessment Mode:** Prototype / Portfolio Demonstration
+- **Intended Use:** Vendor risk review, evidence gap analysis, remediation planning, and audit-readiness documentation
+
+---
+
+## Assessment Scope
+
+This assessment evaluates the cybersecurity and compliance risk posture of a third-party vendor based on business criticality, data sensitivity, available security evidence, control gaps, known vulnerability exposure, and risk review freshness.
+
+The assessment is designed to support third-party risk management, cybersecurity governance, vendor evidence review, and remediation planning.
+
+---
+
 ## Executive Summary
 
 TrustShield GRC reviewed **{row['Vendor']}**, a vendor supporting **{row['System']}**, and calculated a cybersecurity vendor risk score of **{score}/100**.
@@ -290,6 +309,23 @@ TrustShield GRC reviewed **{row['Vendor']}**, a vendor supporting **{row['System
 **Recommended Priority:** {priority}
 
 This assessment supports vendor risk management, cybersecurity governance, compliance documentation, and audit readiness.
+
+---
+
+## Methodology / Basis of Assessment
+
+TrustShield GRC calculates vendor risk using structured assessment inputs and evidence gap indicators. The score considers:
+
+- Business criticality of the vendor or service
+- Sensitivity of data handled by the vendor
+- SOC 2 or equivalent assurance evidence availability
+- MFA / identity control evidence
+- Encryption status
+- Incident response readiness
+- Known vulnerability exposure
+- Freshness of the last vendor risk review
+
+The output is intended to help prioritize vendor follow-up, remediation planning, evidence requests, and risk documentation.
 
 ---
 
@@ -340,6 +376,14 @@ This assessment supports vendor risk management, cybersecurity governance, compl
 ## Remediation Action Plan
 
 {remediation_text}
+
+---
+
+## Limitations
+
+This report is based on the assessment inputs entered into TrustShield GRC and does not independently verify vendor claims, technical configurations, contractual obligations, or production security controls.
+
+This prototype does not replace a formal vendor due diligence process, legal review, audit procedure, penetration test, security architecture review, or compliance certification.
 
 ---
 
