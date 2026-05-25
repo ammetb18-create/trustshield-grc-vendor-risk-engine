@@ -17,6 +17,7 @@ from report_generator import generate_markdown_report
 APP_FILE = Path("app.py")
 DEMO_DATA_FILE = Path("demo_data.py")
 CSV_TOOLS_FILE = Path("csv_tools.py")
+EVIDENCE_WORKFLOW_FILE = Path("evidence_workflow.py")
 
 
 def assert_true(condition, message):
@@ -262,6 +263,7 @@ def test_app_feature_surface_present():
     app_text = APP_FILE.read_text(encoding="utf-8")
     demo_data_text = DEMO_DATA_FILE.read_text(encoding="utf-8") if DEMO_DATA_FILE.exists() else ""
     csv_tools_text = CSV_TOOLS_FILE.read_text(encoding="utf-8") if CSV_TOOLS_FILE.exists() else ""
+    evidence_workflow_text = EVIDENCE_WORKFLOW_FILE.read_text(encoding="utf-8") if EVIDENCE_WORKFLOW_FILE.exists() else ""
 
     required_features = [
         "from demo_data import",
@@ -282,7 +284,7 @@ def test_app_feature_surface_present():
         "Critical Vendor Report Pack",
     ]
 
-    combined_text = app_text + "\n" + demo_data_text + "\n" + csv_tools_text
+    combined_text = app_text + "\n" + demo_data_text + "\n" + csv_tools_text + "\n" + evidence_workflow_text
     missing = [feature for feature in required_features if feature not in combined_text]
     assert_true(not missing, f"Missing expected app features: {missing}")
 
@@ -291,6 +293,7 @@ def test_app_does_not_require_tabulate_for_markdown_tables():
     app_text = APP_FILE.read_text(encoding="utf-8")
     demo_data_text = DEMO_DATA_FILE.read_text(encoding="utf-8") if DEMO_DATA_FILE.exists() else ""
     csv_tools_text = CSV_TOOLS_FILE.read_text(encoding="utf-8") if CSV_TOOLS_FILE.exists() else ""
+    evidence_workflow_text = EVIDENCE_WORKFLOW_FILE.read_text(encoding="utf-8") if EVIDENCE_WORKFLOW_FILE.exists() else ""
 
     assert_true("to_markdown(" not in app_text, "app.py should not rely on pandas.to_markdown because it requires tabulate")
     assert_true("dataframe_to_markdown_table" in app_text, "Expected custom dataframe_to_markdown_table helper")
@@ -300,6 +303,7 @@ def test_workspace_json_structure_expected_keys():
     app_text = APP_FILE.read_text(encoding="utf-8")
     demo_data_text = DEMO_DATA_FILE.read_text(encoding="utf-8") if DEMO_DATA_FILE.exists() else ""
     csv_tools_text = CSV_TOOLS_FILE.read_text(encoding="utf-8") if CSV_TOOLS_FILE.exists() else ""
+    evidence_workflow_text = EVIDENCE_WORKFLOW_FILE.read_text(encoding="utf-8") if EVIDENCE_WORKFLOW_FILE.exists() else ""
 
     expected_keys = [
         "workspace_type",
